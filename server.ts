@@ -33,9 +33,17 @@ databaseconfig.on("success", (connection: any) => {
     app.use("/test/api", testRoute);
     app.use("/api/key", keyRoute);
     app.use("/api", errorHandler);
-    app.post("/test/api/license/create", (req: Request, res: Response) => {
+    app.use("/api", (req: Request, res: Response) => {
       res.json({
-        create: "create success",
+        success: false,
+        message: "Invalid Route",
+      });
+    });
+
+    app.use("/test/api", (req: Request, res: Response) => {
+      res.json({
+        success: false,
+        message: "Sorry Test for this route is not aviliable",
       });
     });
   });

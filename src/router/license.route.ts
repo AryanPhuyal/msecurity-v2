@@ -15,7 +15,7 @@ const licenseController = new LicenseController();
 
 router.post(
   "/create",
-  partnerMiddleware,
+  adminPartnerMiddleware,
   createLicenseValidator,
   licenseController.createLicense
 );
