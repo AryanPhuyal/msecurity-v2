@@ -3,7 +3,7 @@ import { getConnection } from "typeorm";
 import asyncHandler from "express-async-handler";
 import Partner from "../entity/Partner.entity";
 import passwordTool from "../utility/hashPassword";
-import jwtTools from "../utility/jwtTools";
+import { jwtSign } from "../utility/jwtTools";
 import { validationResult } from "express-validator";
 import { v4 as uuidv4 } from "uuid";
 
@@ -49,11 +49,12 @@ export default class PartnerController {
     newPartner.email = email;
     newPartner.phone = phone;
     newPartner.shopId = shopId;
-    await getConnection().manager.save(newPartner);
+    const partner = await getConnection().manager.save(newPartner);
 
     res.json({
       success: true,
       message: "Successfully created partner",
+      partner: "partner",
     });
   });
 
@@ -123,8 +124,8 @@ export default class PartnerController {
       res.statusCode = 400;
       throw "User or Password is incorrect";
     }
-    jwtTools.jwtSign.emit("generate", { partnerId: partner.id });
-    jwtTools.jwtSign.on("success", (token: string) => {
+    jwtSign.emit("generate", { partnerId: partner.id });
+    jwtSign.on("success", (token: string) => {
       return res.json({
         success: true,
         token: token,
@@ -139,7 +140,7 @@ export default class PartnerController {
         },
       });
     });
-    jwtTools.jwtSign.on("error", (err) => {
+    jwtSign.on("error", (err) => {
       throw err;
     });
   });

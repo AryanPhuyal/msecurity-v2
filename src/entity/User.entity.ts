@@ -7,6 +7,7 @@ import {
   Column,
 } from "typeorm";
 import { License } from "./License.entity";
+import LicenseKey from "./liscenseKey.entity";
 
 @Entity("user")
 export default class User {
@@ -20,7 +21,7 @@ export default class User {
   @Column({ nullable: true })
   phone!: string;
 
-  @Column({})
+  @Column()
   password!: string;
 
   @Column()
@@ -50,4 +51,6 @@ export default class User {
 
   @OneToMany(() => License, (license) => license.user)
   licenses!: License[];
+  @OneToMany(() => LicenseKey, (licenseKey) => licenseKey.user)
+  liscenseKey!: LicenseKey;
 }

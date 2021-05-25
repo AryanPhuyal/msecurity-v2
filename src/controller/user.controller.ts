@@ -3,7 +3,7 @@ import passwordTool from "../utility/hashPassword";
 import asyncHandler from "express-async-handler";
 import { getConnection } from "typeorm";
 import User from "../entity/User.entity";
-import jwtThing from "../utility/jwtTools";
+import { jwtSign } from "../utility/jwtTools";
 import {} from "../utility/environment";
 import { validationResult } from "express-validator";
 
@@ -68,12 +68,12 @@ export default class UserController {
         res.statusCode = 400;
         throw "User or password is not correct";
       }
-      jwtThing.jwtSign.emit("generate", { userId: user.id });
+      jwtSign.emit("generate", { userId: user.id });
 
-      jwtThing.jwtSign.on("error", (err) => {
+      jwtSign.on("error", (err) => {
         throw err;
       });
-      jwtThing.jwtSign.on("success", (token) => {
+      jwtSign.on("success", (token) => {
         return res.json({
           success: true,
           message: "Login Success",
@@ -119,18 +119,18 @@ export default class UserController {
     }
     const newHash = await passwordTool.hashPassword(newPassword);
 
-    getConnection()
-      .manager.createQueryBuilder()
-      .update(User)
-      .set({ password: newHash })
-      .where({ id: user.id })
-      .execute()
-      .then(() => {
-        res.json({
-          success: true,
-          message: "Successfully updated Password",
-        });
-      });
+    // getConnection()
+    //   .createQueryBuilder()
+    //   .update(User)
+    //   .set({ password: newHash })
+    //   .where({ id: user.id })
+    //   .execute()
+    //   .then(() => {
+    //     res.json({
+    //       success: true,
+    //       message: "Successfully updated Password",
+    //     });
+    //   });
   });
   // update User
 }

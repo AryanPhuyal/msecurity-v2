@@ -41,7 +41,6 @@ export default class LicenseController {
         throw error.message;
       })
       .on("data", (row) => {
-        // console.log(row);
         license.push(row);
       })
       .on("end", async () => {
@@ -62,7 +61,6 @@ export default class LicenseController {
             .into(License)
             .values(filtered)
             .execute();
-          // console.log(ll[0].license);
         } catch (err) {
           res.status(400).json({
             success: false,
@@ -76,10 +74,6 @@ export default class LicenseController {
 
   // activate license
   activateLicense = asyncHandler(async (req: Request, res: Response) => {
-    if (req.partner!.role !== "admin") {
-      res.statusCode = 403;
-      throw "Unaviliable";
-    }
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -167,10 +161,6 @@ export default class LicenseController {
   });
 
   checkdevice = asyncHandler(async (req: Request, res: Response) => {
-    if (req.partner!.role !== "admin") {
-      res.statusCode = 403;
-      throw "Unaviliable";
-    }
     const { deviceID } = req.body;
     const license = await getConnection()
       .manager.createQueryBuilder()
@@ -221,6 +211,12 @@ export default class LicenseController {
       res.statusCode = 400;
       throw "Shop Code is not valid";
     }
+    const partner = await connectionManager.findOne(Partner, {
+      where: {
+        shopId: shop_code,
+      },
+    });
+
     if (!email && !phoneno) {
       res.statusCode = 400;
       throw "Email or phoneno required";
@@ -245,11 +241,7 @@ export default class LicenseController {
       },
     });
     // check shop_id exists or not
-    const partner = await connectionManager.findOne(Partner, {
-      where: {
-        shopId: shop_code,
-      },
-    });
+
     if (!partner) {
       res.statusCode = 400;
       throw "Partner not exists";
@@ -319,7 +311,6 @@ export default class LicenseController {
         });
       }
     } else if (email) {
-      console.log("Inside email");
       const message = `Namaste,\nWelcome to MSecurity & Antivirus!\nYour License is: ${license}`;
       const subject = "Msecurity activation";
       while (true) {
@@ -332,10 +323,6 @@ export default class LicenseController {
   };
 
   khaltiPayment = asyncHandler(async (req: Request, res: Response) => {
-    if (req.partner!.role !== "admin") {
-      res.statusCode = 403;
-      throw "Unaviliable";
-    }
     const { phoneno, price, type, refrence, shop_code, token } = req.body;
     const response = await axios.post(
       "https://khalti.com/api/v2/payment/verify/",
@@ -393,10 +380,6 @@ export default class LicenseController {
   });
 
   inappPurchase = asyncHandler(async (req: Request, res: Response) => {
-    if (req.partner!.role !== "admin") {
-      res.statusCode = 403;
-      throw "Unaviliable";
-    }
     const connectionManager = getConnection().manager;
     const { deviceId, platform, shopId } = req.body;
     if (!deviceId) {
@@ -449,8 +432,16 @@ export default class LicenseController {
 
   requestLiscenseTest = asyncHandler(async (req: Request, res: Response) => {
     const connectionManager = getConnection().manager;
-
     const { phoneno, email, price, type, refrence, shop_code } = req.body;
+    const partner = await connectionManager.findOne(Partner, {
+      where: {
+        shopId: shop_code,
+      },
+    });
+    if (partner.id != req.partner.id) {
+      res.statusCode = 403;
+      throw "Unauthorized";
+    }
     if (!email && !phoneno) {
       res.statusCode = 400;
       throw "Email or phoneno required";
@@ -475,11 +466,7 @@ export default class LicenseController {
       },
     });
     // check shop_id exists or not
-    const partner = await connectionManager.findOne(Partner, {
-      where: {
-        shopId: shop_code,
-      },
-    });
+
     if (!partner) {
       res.statusCode = 400;
       throw "Partner not exists";

@@ -3,7 +3,7 @@ import LicenseController from "../controller/license.controller";
 import partnerMiddleware from "../middleware/partner.middleware";
 import uploadFile from "../middleware/uploadFile.middleware";
 import adminPartnerMiddleware from "../middleware/adminPartner.middleware";
-import partnerKeyMiddleware from "../middleware/partnerKey.middleware";
+// import partnerMiddleware from "../middleware/partnerKey.middleware";
 import {
   createLicenseValidator,
   licenseValidator,
@@ -22,22 +22,19 @@ router.post(
 // router.get("/", licenseController.getAllLicense);
 router.post(
   "/activate",
-  partnerKeyMiddleware,
+  partnerMiddleware,
   licenseValidator,
   licenseController.activateLicense
 );
-router.post("/check", partnerKeyMiddleware, licenseController.checkdevice);
-router.post("/buy", partnerKeyMiddleware, licenseController.requestLicense);
+router.post("/check", adminPartnerMiddleware, licenseController.checkdevice);
+router.post("/buy", partnerMiddleware, licenseController.requestLicense);
 router.post(
   "/buy/khalti",
-  partnerKeyMiddleware,
+  partnerMiddleware,
+  adminPartnerMiddleware,
   licenseController.khaltiPayment
 );
-router.post(
-  "/buy/inapp",
-  partnerKeyMiddleware,
-  licenseController.inappPurchase
-);
+router.post("/buy/inapp", partnerMiddleware, licenseController.inappPurchase);
 
 router.post(
   "/upload-csv",

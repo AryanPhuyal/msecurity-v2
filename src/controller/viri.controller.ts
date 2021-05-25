@@ -15,10 +15,6 @@ export default class ViriController {
   });
 
   testVirus = asyncHandler(async (req: Request, res: Response) => {
-    if (req.partner?.role !== "admin") {
-      res.statusCode = 403;
-      throw "Unaviliable";
-    }
     const { md5s } = req.body;
     const filter = md5s.map((e: string) => {
       return { code: e };

@@ -3,8 +3,7 @@ import asyncHandeler from "express-async-handler";
 import { getConnection, getRepository } from "typeorm";
 import Partner from "../entity/Partner.entity";
 import User from "../entity/User.entity";
-import jwtTools from "../utility/jwtToken";
-import dotenv from "../../utils/dotenv";
+import { jwtGet } from "../utility/jwtTools";
 
 const isAuth = asyncHandeler(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -12,47 +11,50 @@ const isAuth = asyncHandeler(
     if (bearerHeader) {
       const bearer = bearerHeader.split(" ");
       const bearerToken = bearer[1];
-      jwtTools.decryptToken(
-        bearerToken,
-        dotenv.JWT_SECRET!,
-        async (err: Error, authData: any) => {
-          if (err) {
-            return res.status(403).json({ error: "forbidden" });
-          }
 
-          if (authData.partnerId) {
-            const partner = await getConnection().manager.findOne(Partner, {
-              where: {
-                id: authData["partnerId"],
-              },
-            });
-            if (partner) {
-              req.partner = partner;
-              return next();
-            } else {
-              req.partner = null;
-              return next();
-            }
-          }
-
-          const user = await getConnection().manager.findOne(User, {
+      jwtGet(bearerToken, async (err: any, data: any) => {
+        if (err) {
+          req.user = null;
+          req.partner = null;
+          return next();
+        }
+        if (!data) {
+          return next();
+        }
+        if (data.partnerId) {
+          const partner = await getConnection().manager.findOne(Partner, {
             where: {
-              id: authData["userId"],
+              id: data["partnerId"],
             },
           });
-          if (user) {
-            req.user = user;
+
+          if (partner) {
+            req.partner = partner;
             return next();
           } else {
-            req.user = null;
+            req.partner = null;
             return next();
           }
         }
-      );
+
+        const user = await getConnection().manager.findOne(User, {
+          where: {
+            id: data["userId"],
+          },
+        });
+
+        if (user) {
+          req.user = user;
+          return next();
+        } else {
+          req.user = null;
+          return next();
+        }
+      });
     } else {
       req.user = null;
       req.partner = null;
-      next();
+      return next();
     }
   }
 );

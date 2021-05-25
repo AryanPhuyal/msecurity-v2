@@ -1,6 +1,6 @@
 import express, { Router } from "express";
 import PartnerController from "../controller/partner.controller";
-import partnerMiddleware from "../midleware/partner.middleware";
+import partnerMiddleware from "../middleware/partner.middleware";
 import {
   changePasswordValidator,
   createPartnerValidator,
