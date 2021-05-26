@@ -54,7 +54,7 @@ export default class PartnerController {
     res.json({
       success: true,
       message: "Successfully created partner",
-      partner: "partner",
+      partner: partner,
     });
   });
 

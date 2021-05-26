@@ -8,6 +8,7 @@ import authMiddleware from "./src/middleware/auth.middlleware";
 import keyRoute from "./src/router/liscenseKey.route";
 import secretMiddleware from "./src/middleware/secret.middleware";
 import logger from "./src/configs/logger";
+import cors from 'cors';
 // config app
 const dotenv = require("dotenv");
 dotenv.config();
@@ -23,6 +24,7 @@ databaseconfig.emit("connect");
 databaseconfig.on("success", (connection: any) => {
   appconfig.emit("connect");
   appconfig.on("success", (app: any) => {
+	app.use(cors());
     app.use(authMiddleware);
     app.use(secretMiddleware);
     app.use("/api/user", userRoute);
