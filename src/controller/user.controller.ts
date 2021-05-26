@@ -3,7 +3,7 @@ import passwordTool from "../utility/hashPassword";
 import asyncHandler from "express-async-handler";
 import { getConnection } from "typeorm";
 import User from "../entity/User.entity";
-import { jwtSign } from "../utility/jwtTools";
+import { jwtGenerate, jwtSign } from "../utility/jwtTools";
 import {} from "../utility/environment";
 import { validationResult } from "express-validator";
 
@@ -68,24 +68,41 @@ export default class UserController {
         res.statusCode = 400;
         throw "User or password is not correct";
       }
-      jwtSign.emit("generate", { userId: user.id });
+      jwtGenerate({ userId: user.id }, (err, token) => {
+        if (!err) {
+          return res.json({
+            success: true,
+            message: "Login Success",
+            token: token,
+            user: {
+              email: user.email,
+              firstname: user.firstname,
+              lastname: user.lastname,
+              role: user.role,
+            },
+          });
+        } else {
+          throw err;
+        }
+      });
+      // jwtSign.emit("generate", { userId: user.id });
 
-      jwtSign.on("error", (err) => {
-        throw err;
-      });
-      jwtSign.on("success", (token) => {
-        return res.json({
-          success: true,
-          message: "Login Success",
-          token: token,
-          user: {
-            email: user.email,
-            firstname: user.firstname,
-            lastname: user.lastname,
-            role: user.role,
-          },
-        });
-      });
+      // jwtSign.on("error", (err) => {
+      //   throw err;
+      // });
+      // jwtSign.on("success", (token) => {
+      //   return res.json({
+      //     success: true,
+      //     message: "Login Success",
+      //     token: token,
+      //     user: {
+      //       email: user.email,
+      //       firstname: user.firstname,
+      //       lastname: user.lastname,
+      //       role: user.role,
+      //     },
+      //   });
+      // });
     } else {
       res.statusCode = 400;
       throw "User with this email not found";

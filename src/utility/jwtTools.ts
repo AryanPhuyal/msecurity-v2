@@ -4,6 +4,17 @@ import { JWT_SECRET } from "../utility/environment";
 export const jwtSign = new EventEmitter();
 export const jwtRetrive = new EventEmitter();
 
+export const jwtGenerate = (data: any, cb: Function) => {
+  const jwtSecret = JWT_SECRET as Secret;
+  jwt.sign(data, jwtSecret, (err: any, token: any) => {
+    if (err) {
+      cb(err, null);
+    } else {
+      cb(null, token);
+    }
+  });
+};
+
 jwtSign.on("generate", (data) => {
   const jwtSecret = JWT_SECRET as Secret;
   jwt.sign(data, jwtSecret, (err: any, token: any) => {
