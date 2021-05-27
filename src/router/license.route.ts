@@ -4,6 +4,7 @@ import partnerMiddleware from "../middleware/partner.middleware";
 import uploadFile from "../middleware/uploadFile.middleware";
 import adminUserMiddleware from "../middleware/adminUser.middleware";
 // import partnerMiddleware from "../middleware/partnerKey.middleware";
+import adminPartnerMiddleware from '../middleware/adminPartner.middleware';
 import {
   createLicenseValidator,
   licenseValidator,
