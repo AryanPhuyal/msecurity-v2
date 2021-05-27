@@ -2,7 +2,7 @@ import { Router } from "express";
 import LicenseController from "../controller/license.controller";
 import partnerMiddleware from "../middleware/partner.middleware";
 import uploadFile from "../middleware/uploadFile.middleware";
-import adminPartnerMiddleware from "../middleware/adminPartner.middleware";
+import adminUserMiddleware from "../middleware/adminUser.middleware";
 // import partnerMiddleware from "../middleware/partnerKey.middleware";
 import {
   createLicenseValidator,
@@ -15,7 +15,7 @@ const licenseController = new LicenseController();
 
 router.post(
   "/create",
-  adminPartnerMiddleware,
+  adminUserMiddleware,
   createLicenseValidator,
   licenseController.createLicense
 );
