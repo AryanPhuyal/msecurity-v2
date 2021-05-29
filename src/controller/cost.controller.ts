@@ -72,15 +72,15 @@ export default class CostController {
       throw "Platform doesn't exists";
     }
     await getConnection()
-      .manager.createQueryBuilder(Cost, "cost")
-      .update()
+      .manager.createQueryBuilder()
+      .update(Cost)
       .set({ delete: true })
       .where({ id: id })
       .execute();
-    getConnection().manager.save(platform);
+    
     res.json({
       success: true,
-      message: "Successfully updated price",
+      message: "Successfully deleted",
     });
   });
 

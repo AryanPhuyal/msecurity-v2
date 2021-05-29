@@ -33,7 +33,7 @@ class UserController {
                 newUser.role = "admin";
             }
             else {
-                const userExists = typeorm_1.getConnection().manager.findOne(User_entity_1.default, {
+                const userExists = yield typeorm_1.getConnection().manager.findOne(User_entity_1.default, {
                     where: {
                         email: email,
                     },
@@ -76,23 +76,41 @@ class UserController {
                     res.statusCode = 400;
                     throw "User or password is not correct";
                 }
-                jwtTools_1.jwtSign.emit("generate", { userId: user.id });
-                jwtTools_1.jwtSign.on("error", (err) => {
-                    throw err;
+                jwtTools_1.jwtGenerate({ userId: user.id }, (err, token) => {
+                    if (!err) {
+                        return res.json({
+                            success: true,
+                            message: "Login Success",
+                            token: token,
+                            user: {
+                                email: user.email,
+                                firstname: user.firstname,
+                                lastname: user.lastname,
+                                role: user.role,
+                            },
+                        });
+                    }
+                    else {
+                        throw err;
+                    }
                 });
-                jwtTools_1.jwtSign.on("success", (token) => {
-                    return res.json({
-                        success: true,
-                        message: "Login Success",
-                        token: token,
-                        user: {
-                            email: user.email,
-                            firstname: user.firstname,
-                            lastname: user.lastname,
-                            role: user.role,
-                        },
-                    });
-                });
+                // jwtSign.emit("generate", { userId: user.id });
+                // jwtSign.on("error", (err) => {
+                //   throw err;
+                // });
+                // jwtSign.on("success", (token) => {
+                //   return res.json({
+                //     success: true,
+                //     message: "Login Success",
+                //     token: token,
+                //     user: {
+                //       email: user.email,
+                //       firstname: user.firstname,
+                //       lastname: user.lastname,
+                //       role: user.role,
+                //     },
+                //   });
+                // });
             }
             else {
                 res.statusCode = 400;

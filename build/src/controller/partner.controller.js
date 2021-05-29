@@ -49,9 +49,8 @@ class PartnerController {
                     .where("partner.email = :email OR partner.phone= :phone ", {
                     email,
                     phone,
-                })
-                    .getCount();
-                if (partnerExists >= 1) {
+                }).execute();
+                if (partnerExists) {
                     res.statusCode = 409;
                     throw "Partner with this email already exists";
                 }

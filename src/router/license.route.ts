@@ -20,7 +20,7 @@ router.post(
   createLicenseValidator,
   licenseController.createLicense
 );
-// router.get("/", licenseController.getAllLicense);
+ router.get("/", licenseController.getAllLicense);
 router.post(
   "/activate",
   partnerMiddleware,

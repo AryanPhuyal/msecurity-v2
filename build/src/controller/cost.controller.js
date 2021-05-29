@@ -83,15 +83,14 @@ class CostController {
                 throw "Platform doesn't exists";
             }
             yield typeorm_1.getConnection()
-                .manager.createQueryBuilder(Cost_entity_1.default, "cost")
-                .update()
+                .manager.createQueryBuilder()
+                .update(Cost_entity_1.default)
                 .set({ delete: true })
                 .where({ id: id })
                 .execute();
-            typeorm_1.getConnection().manager.save(platform);
             res.json({
                 success: true,
-                message: "Successfully updated price",
+                message: "Successfully deleted",
             });
         }));
         this.list = express_async_handler_1.default((req, res) => __awaiter(this, void 0, void 0, function* () {

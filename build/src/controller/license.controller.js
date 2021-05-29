@@ -49,6 +49,16 @@ const email_1 = __importDefault(require("../utility/email"));
 const cost_controller_1 = __importDefault(require("./cost.controller"));
 class LicenseController {
     constructor() {
+        this.getAllLicense = express_async_handler_1.default((req, res) => __awaiter(this, void 0, void 0, function* () {
+            const license = yield typeorm_1.createQueryBuilder("license", "license")
+                .leftJoinAndSelect("cost", "cost", "license.costId = cost.id")
+                .leftJoinAndSelect("partner", "partner", "partner.id = license.partnerId")
+                .execute();
+            return res.json({
+                success: true,
+                data: license,
+            });
+        }));
         this.importLiscenseFromCsv = express_async_handler_1.default((req, res) => __awaiter(this, void 0, void 0, function* () {
             const connectionManeger = typeorm_1.getConnection().manager;
             const { platform } = req.body;

@@ -1,7 +1,7 @@
 import { License } from "../entity/License.entity";
 import asyncHandler from "express-async-handler";
 import { Request, Response } from "express";
-import { getConnection, MoreThan } from "typeorm";
+import { getConnection, MoreThan,createQueryBuilder } from "typeorm";
 import Cost from "../entity/Cost.entity";
 import fs from "fs";
 import path from "path";
@@ -17,7 +17,19 @@ import mailer from "../utility/email";
 import CostController from "./cost.controller";
 
 export default class LicenseController {
-  importLiscenseFromCsv = asyncHandler(async (req: Request, res: Response) => {
+ getAllLicense = asyncHandler(async (req: Request, res: Response) => {
+	    const license = await createQueryBuilder("license", "license")
+	         .leftJoinAndSelect("cost", "cost", "license.costId = cost.id")
+		      .leftJoinAndSelect("partner", "partner", "partner.id = license.partnerId")
+		           .execute();
+			      return res.json({
+				           success: true,
+					        data: license,
+					           });
+					     });	   
+
+
+	importLiscenseFromCsv = asyncHandler(async (req: Request, res: Response) => {
     const connectionManeger = getConnection().manager;
     const { platform } = req.body;
 

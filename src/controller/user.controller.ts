@@ -23,7 +23,7 @@ export default class UserController {
     if (userCount == 0) {
       newUser.role = "admin";
     } else {
-      const userExists = getConnection().manager.findOne(User, {
+      const userExists =await  getConnection().manager.findOne(User, {
         where: {
           email: email,
         },

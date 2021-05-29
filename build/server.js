@@ -28,13 +28,13 @@ database_1.default.on("success", (connection) => {
         app.use(cors_1.default());
         app.use(auth_middlleware_1.default);
         app.use(secret_middleware_1.default);
-        app.use("/api/user", user_route_1.default);
-        app.use("/api/cost", cost_route_1.default);
-        app.use("/api/license", license_route_1.default);
-        app.use("/api/partner", partner_route_1.default);
-        app.use("/api/virus", viri_route_1.default);
-        app.use("/test/api", test_route_1.default);
-        app.use("/api/key", liscenseKey_route_1.default);
+        app.use("/api/v2/user", user_route_1.default);
+        app.use("/api/v2/cost", cost_route_1.default);
+        app.use("/api/v2/license", license_route_1.default);
+        app.use("/api/v2/partner", partner_route_1.default);
+        app.use("/api/v2/virus", viri_route_1.default);
+        app.use("/test/v2/api", test_route_1.default);
+        app.use("/api/v2/key", liscenseKey_route_1.default);
         app.use("/api", errorHandler);
         app.use("/api", (req, res) => {
             res.json({

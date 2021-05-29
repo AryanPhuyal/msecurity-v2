@@ -27,13 +27,13 @@ databaseconfig.on("success", (connection: any) => {
 	app.use(cors());
     app.use(authMiddleware);
     app.use(secretMiddleware);
-    app.use("/api/user", userRoute);
-    app.use("/api/cost", costRoute);
-    app.use("/api/license", licenseRoute);
-    app.use("/api/partner", partnerRoute);
-    app.use("/api/virus", viriRoute);
-    app.use("/test/api", testRoute);
-    app.use("/api/key", keyRoute);
+    app.use("/api/v2/user", userRoute);
+    app.use("/api/v2/cost", costRoute);
+    app.use("/api/v2/license", licenseRoute);
+    app.use("/api/v2/partner", partnerRoute);
+    app.use("/api/v2/virus", viriRoute);
+    app.use("/test/v2/api", testRoute);
+    app.use("/api/v2/key", keyRoute);
     app.use("/api", errorHandler);
     app.use("/api", (req: Request, res: Response) => {
       res.json({
