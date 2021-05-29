@@ -31,7 +31,7 @@ databaseconfig.on("success", (connection: any) => {
     app.use(secretMiddleware);
     app.use("/api/v2/user", userRoute);
     app.use("/api/v2/cost", costRoute);
-    app.use("/api/v2/cost", costRouteInsecure);
+    app.use("/api/cost", costRouteInsecure);
 
     app.use("/api/v2/license", licenseRoute);
     app.use("/api/license", licenseRouteInsecure);
