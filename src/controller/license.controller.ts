@@ -6,7 +6,7 @@ import Cost from "../entity/Cost.entity";
 import fs from "fs";
 import path from "path";
 import * as csv from "fast-csv";
-import { validationResult } from "express-validator";
+import { body, validationResult } from "express-validator";
 import moment from "moment";
 import Partner from "../entity/Partner.entity";
 import Tranjection from "../entity/Tranjection.entity";
@@ -15,6 +15,7 @@ import sms from "../utility/sendSms";
 import { findUniqueLicense, findUniqueSn } from "../service/generateLicense";
 import mailer from "../utility/email";
 import CostController from "./cost.controller";
+import smsConfig from "../utility/sendSms";
 
 export default class LicenseController {
   getAllLicense = asyncHandler(async (req: Request, res: Response) => {
@@ -382,23 +383,25 @@ export default class LicenseController {
     await getConnection().manager.save(newLicense);
     if (phoneno) {
       while (true) {
-        sms.emit(
-          "send",
-          phoneno,
-          `Namaste,\nWelcome to MSecurity & Antivirus!\nYour License is: ${license}`
-        );
-        sms.on("success", (data) => {
+        try {
+          await smsConfig(
+            phoneno,
+            `Namaste,\nWelcome to MSecurity & Antivirus!\nPlease use this for ${platform.title}\nYour License is: ${license}`
+          );
           return cb(license);
-        });
+        } catch (err) {}
       }
     } else if (email) {
-      const message = `Namaste,\nWelcome to MSecurity & Antivirus!\nYour License is: ${license}`;
+      const message = `Namaste,\nWelcome to MSecurity & Antivirus!\nPlease use this for ${platform.title}\nYour License is: ${license}`;
+
       const subject = "Msecurity activation";
       while (true) {
-        mailer.emit("mail", subject, message, email);
-        mailer.on("success", () => {
+        try {
+          await mailer(email, subject, message);
           return cb(license);
-        });
+        } catch (err) {
+          console.log(err);
+        }
       }
     }
   };

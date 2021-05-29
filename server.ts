@@ -11,6 +11,10 @@ import logger from "./src/configs/logger";
 import licenseRouteInsecure from "./src/router/licenseunsecure.route";
 import costRouteInsecure from "./src/router/costRouteInsecure.route";
 import cors from "cors";
+import path from "path";
+import fs from "fs";
+import { ENVIRONMENT } from "./src/utility/environment";
+
 // config app
 const dotenv = require("dotenv");
 dotenv.config();
@@ -26,6 +30,23 @@ databaseconfig.emit("connect");
 databaseconfig.on("success", (connection: any) => {
   appconfig.emit("connect");
   appconfig.on("success", (app: any) => {
+    if (
+      fs.existsSync(
+        ENVIRONMENT === "DEVELOPMENT"
+          ? path.join(__dirname, "public", "build")
+          : path.join(__dirname, "../", "public", "build")
+      )
+    ) {
+      app.get("*", (req: Request, res: Response) =>
+        res.sendFile(
+          path.resolve(
+            ENVIRONMENT === "DEVELOPMENT"
+              ? path.join(__dirname, "public", "build", "index.html")
+              : path.join(__dirname, "../", "public", "build", "index.html")
+          )
+        )
+      );
+    }
     app.use(cors());
     app.use(authMiddleware);
     app.use(secretMiddleware);

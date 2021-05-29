@@ -1,11 +1,28 @@
 import EventEmitter from "events";
 import express from "express";
-import { PORT } from "../utility/environment";
+import { ENVIRONMENT, PORT } from "../utility/environment";
 import logger from "./logger";
 const serverConfig = new EventEmitter();
+import path from "path";
+import fs from "fs";
 
 serverConfig.on("connect", () => {
   const app = express();
+  if (
+    fs.existsSync(
+      ENVIRONMENT === "DEVELOPMENT"
+        ? path.join(__dirname, "public", "build")
+        : path.join(__dirname, "../", "public", "build")
+    )
+  ) {
+    app.use(
+      express.static(
+        ENVIRONMENT === "DEVELOPMENT"
+          ? path.join(__dirname, "public", "build")
+          : path.join(__dirname, "../", "public", "build")
+      )
+    );
+  }
   app.use(express.json());
   app.listen(PORT, () => {
     logger.emit(
