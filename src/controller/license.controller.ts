@@ -522,6 +522,10 @@ export default class LicenseController {
         shopId: shop_code,
       },
     });
+    if (!partner) {
+      res.statusCode = 400;
+      throw "Partner not exists";
+    }
     if (partner.id != req.partner.id) {
       res.statusCode = 403;
       throw "Unauthorized";

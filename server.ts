@@ -59,7 +59,7 @@ databaseconfig.on("success", (connection: any) => {
 
     app.use("/api/v2/partner", partnerRoute);
     app.use("/api/v2/virus", viriRoute);
-    app.use("/test/v2/api", testRoute);
+    app.use("/test/api/v2", testRoute);
     app.use("/api/v2/key", keyRoute);
     app.use("/api", errorHandler);
     app.use("/api", (req: Request, res: Response) => {

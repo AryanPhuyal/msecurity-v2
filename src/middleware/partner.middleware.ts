@@ -3,7 +3,7 @@ import asysnchandeler from "express-async-handler";
 
 const isAdmin = asysnchandeler(
   async (req: Request, res: Response, next: NextFunction) => {
-    if (req.partner != null) {
+    if (req.partner) {
       next();
     } else {
       res.statusCode = 403;
