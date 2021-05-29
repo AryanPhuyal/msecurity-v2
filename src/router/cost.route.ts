@@ -17,4 +17,5 @@ router.post(
   costController.create
 );
 router.put("/update-platform/:id", adminMiddleWare, costController.updatePrice);
-router.delete("/delete-platform/:id", adminMiddleWare, costController.delete)
+router.delete("/delete-platform/:id", adminMiddleWare, costController.delete);
+export default router;
