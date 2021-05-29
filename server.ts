@@ -9,6 +9,7 @@ import keyRoute from "./src/router/liscenseKey.route";
 import secretMiddleware from "./src/middleware/secret.middleware";
 import logger from "./src/configs/logger";
 import licenseRouteInsecure from "./src/router/licenseunsecure.route";
+import costRouteInsecure from "./src/router/costRouteInsecure.route";
 import cors from "cors";
 // config app
 const dotenv = require("dotenv");
@@ -30,6 +31,8 @@ databaseconfig.on("success", (connection: any) => {
     app.use(secretMiddleware);
     app.use("/api/v2/user", userRoute);
     app.use("/api/v2/cost", costRoute);
+    app.use("/api/v2/cost", costRouteInsecure);
+
     app.use("/api/v2/license", licenseRoute);
     app.use("/api/license", licenseRouteInsecure);
 

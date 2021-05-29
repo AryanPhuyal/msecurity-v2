@@ -1,7 +1,7 @@
 import { License } from "../entity/License.entity";
 import asyncHandler from "express-async-handler";
 import { Request, Response } from "express";
-import { getConnection, MoreThan,createQueryBuilder } from "typeorm";
+import { getConnection, MoreThan, createQueryBuilder } from "typeorm";
 import Cost from "../entity/Cost.entity";
 import fs from "fs";
 import path from "path";
@@ -17,19 +17,18 @@ import mailer from "../utility/email";
 import CostController from "./cost.controller";
 
 export default class LicenseController {
- getAllLicense = asyncHandler(async (req: Request, res: Response) => {
-	    const license = await createQueryBuilder("license", "license")
-	         .leftJoinAndSelect("cost", "cost", "license.costId = cost.id")
-		      .leftJoinAndSelect("partner", "partner", "partner.id = license.partnerId")
-		           .execute();
-			      return res.json({
-				           success: true,
-					        data: license,
-					           });
-					     });	   
+  getAllLicense = asyncHandler(async (req: Request, res: Response) => {
+    const license = await createQueryBuilder("license", "license")
+      .leftJoinAndSelect("cost", "cost", "license.costId = cost.id")
+      .leftJoinAndSelect("partner", "partner", "partner.id = license.partnerId")
+      .execute();
+    return res.json({
+      success: true,
+      data: license,
+    });
+  });
 
-
-	importLiscenseFromCsv = asyncHandler(async (req: Request, res: Response) => {
+  importLiscenseFromCsv = asyncHandler(async (req: Request, res: Response) => {
     const connectionManeger = getConnection().manager;
     const { platform } = req.body;
 
@@ -223,6 +222,76 @@ export default class LicenseController {
       res.statusCode = 400;
       throw "Shop Code is not valid";
     }
+    const partner = await connectionManager.findOne(Partner, {
+      where: {
+        shopId: shop_code,
+      },
+    });
+
+    if (!email && !phoneno) {
+      res.statusCode = 400;
+      throw "Email or phoneno required";
+    }
+    if (
+      email &&
+      !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
+        email
+      )
+    ) {
+      res.statusCode = 400;
+      throw "Please enter correct email address";
+    }
+    if (phoneno && phoneno.toString().length != 10) {
+      res.statusCode = 400;
+      throw "Please enter correct phone no";
+    }
+
+    const platform = await connectionManager.findOne(Cost, {
+      where: {
+        platform: type.toLowerCase(),
+      },
+    });
+    // check shop_id exists or not
+
+    if (!partner) {
+      res.statusCode = 400;
+      throw "Partner not exists";
+    }
+    // check platform exists
+    if (!platform) {
+      res.statusCode = 400;
+      throw "Platform not exists";
+    }
+    const cost = platform.price;
+    if (price < cost) {
+      res.statusCode = 400;
+      throw "price is insufficent";
+    }
+
+    return this.sendLiscense(
+      email,
+      partner,
+      platform,
+      phoneno,
+      (license: String) => {
+        res.status(200).json({
+          result: 1,
+          licenseCode: license,
+          validation: {
+            date: Date.now(),
+            timezone_type: 3,
+            timezone: "UTC",
+          },
+        });
+      }
+    );
+  });
+
+  requestLicenseInsecure = asyncHandler(async (req: Request, res: Response) => {
+    const connectionManager = getConnection().manager;
+
+    const { phoneno, email, price, type, refrence, shop_code } = req.body;
+
     const partner = await connectionManager.findOne(Partner, {
       where: {
         shopId: shop_code,

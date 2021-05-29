@@ -21,7 +21,7 @@ router.post(
 router.get("/", licenseController.getAllLicense);
 router.post("/activate", licenseValidator, licenseController.activateLicense);
 router.post("/check", licenseController.checkdevice);
-router.post("/buy", licenseController.requestLicense);
+router.post("/buy", licenseController.requestLicenseInsecure);
 router.post("/buy/khalti", licenseController.khaltiPayment);
 router.post("/buy/inapp", licenseController.inappPurchase);
 
