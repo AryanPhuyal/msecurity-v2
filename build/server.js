@@ -13,7 +13,12 @@ const auth_middlleware_1 = __importDefault(require("./src/middleware/auth.middll
 const liscenseKey_route_1 = __importDefault(require("./src/router/liscenseKey.route"));
 const secret_middleware_1 = __importDefault(require("./src/middleware/secret.middleware"));
 const logger_1 = __importDefault(require("./src/configs/logger"));
+const licenseunsecure_route_1 = __importDefault(require("./src/router/licenseunsecure.route"));
+const costRouteInsecure_route_1 = __importDefault(require("./src/router/costRouteInsecure.route"));
 const cors_1 = __importDefault(require("cors"));
+const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
+const environment_1 = require("./src/utility/environment");
 // config app
 const dotenv = require("dotenv");
 dotenv.config();
@@ -25,15 +30,24 @@ database_1.default.emit("connect");
 database_1.default.on("success", (connection) => {
     configApp_1.default.emit("connect");
     configApp_1.default.on("success", (app) => {
+        if (fs_1.default.existsSync(environment_1.ENVIRONMENT === "DEVELOPMENT"
+            ? path_1.default.join(__dirname, "public", "build")
+            : path_1.default.join(__dirname, "../", "public", "build"))) {
+            app.get("*", (req, res) => res.sendFile(path_1.default.resolve(environment_1.ENVIRONMENT === "DEVELOPMENT"
+                ? path_1.default.join(__dirname, "public", "build", "index.html")
+                : path_1.default.join(__dirname, "../", "public", "build", "index.html"))));
+        }
         app.use(cors_1.default());
         app.use(auth_middlleware_1.default);
         app.use(secret_middleware_1.default);
         app.use("/api/v2/user", user_route_1.default);
         app.use("/api/v2/cost", cost_route_1.default);
+        app.use("/api/cost", costRouteInsecure_route_1.default);
         app.use("/api/v2/license", license_route_1.default);
+        app.use("/api/license", licenseunsecure_route_1.default);
         app.use("/api/v2/partner", partner_route_1.default);
         app.use("/api/v2/virus", viri_route_1.default);
-        app.use("/test/v2/api", test_route_1.default);
+        app.use("/test/api/v2", test_route_1.default);
         app.use("/api/v2/key", liscenseKey_route_1.default);
         app.use("/api", errorHandler);
         app.use("/api", (req, res) => {

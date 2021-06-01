@@ -15,6 +15,6 @@ exports.DATABASE_NAME = process.env.DATABASE_NAME;
 exports.DATABASE_USER = process.env.DATABASE_USER;
 exports.DATABASE_PASSWORD = process.env.DATABASE_PASSWORD;
 exports.DATABASE_HOST = process.env.DATABASE_HOST;
-exports.EMAIL = process.env.email;
+exports.EMAIL = process.env.EMAIL_ADDRESS;
 exports.PASSWORD = process.env.PASSWORD;
 exports.EMAIL_PROVIDER = process.env.EMAIL_PROVIDER;

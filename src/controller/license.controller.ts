@@ -340,6 +340,7 @@ export default class LicenseController {
     }
 
     return this.sendLiscense(
+	    refrence,
       email,
       partner,
       platform,
@@ -359,6 +360,7 @@ export default class LicenseController {
   });
 
   sendLiscense = async (
+	  refrence:string|null;
     email: string | null,
     partner: Partner,
     platform: Cost,
@@ -375,7 +377,8 @@ export default class LicenseController {
     newLicense.cost = platform;
     const newTranjection = new Tranjection();
     newTranjection.cost = platform.price;
-
+if(refrence)
+	newTranjection.id =refrence
     // newTranjection.licenses = new;
     newTranjection.partner = partner;
     const tt = await getConnection().manager.save(newTranjection); // var tt = await getConnection().manager.save(Tranjection);

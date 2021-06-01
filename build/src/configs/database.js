@@ -32,7 +32,7 @@ databaseconfig.on("connect", () => __awaiter(void 0, void 0, void 0, function* (
         username: environment_1.DATABASE_USER,
         password: environment_1.DATABASE_PASSWORD,
         database: environment_1.DATABASE_NAME,
-        synchronize: true,
+        synchronize: false,
         entities: [User_entity_1.default, License_entity_1.License, Partner_entity_1.default, Viri_entity_1.default, Cost_entity_1.default, Tranjection_entity_1.default, liscenseKey_entity_1.default],
     })
         .then((connection) => {

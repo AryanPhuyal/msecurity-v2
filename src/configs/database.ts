@@ -26,7 +26,7 @@ databaseconfig.on("connect", async () => {
     username: DATABASE_USER,
     password: DATABASE_PASSWORD,
     database: DATABASE_NAME,
-    synchronize: true,
+    synchronize: false,
     entities: [User, License, Partner, Viri, Cost, Tranjection, LicenseKey],
   })
     .then((connection) => {

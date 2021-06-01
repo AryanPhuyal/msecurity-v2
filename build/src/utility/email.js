@@ -12,14 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const events_1 = __importDefault(require("events"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const environment_1 = require("../utility/environment");
-const mailer = new events_1.default();
+// const mailer = new EventEmitter();
 const email = environment_1.EMAIL;
 const password = environment_1.PASSWORD;
 const emailProvider = environment_1.EMAIL_PROVIDER;
-mailer.on("mail", (subject, body, emailTo) => __awaiter(void 0, void 0, void 0, function* () {
+const mailer = (emailTo, subject, body) => __awaiter(void 0, void 0, void 0, function* () {
     var transporter = nodemailer_1.default.createTransport({
         port: 465,
         host: emailProvider,
@@ -29,19 +28,13 @@ mailer.on("mail", (subject, body, emailTo) => __awaiter(void 0, void 0, void 0, 
             pass: password,
         },
     });
-    // send mail
     var mailOptions = {
         from: "noreply@msecurity.app",
         to: emailTo,
         subject: subject,
         text: body,
     };
-    try {
-        const mail = yield transporter.sendMail(mailOptions);
-        mailer.emit("success", mail);
-    }
-    catch (err) {
-        mailer.emit("error", err);
-    }
-}));
+    console.log(subject + " " + body);
+    return yield transporter.sendMail(mailOptions);
+});
 exports.default = mailer;

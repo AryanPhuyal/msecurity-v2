@@ -43,10 +43,10 @@ const moment_1 = __importDefault(require("moment"));
 const Partner_entity_1 = __importDefault(require("../entity/Partner.entity"));
 const Tranjection_entity_1 = __importDefault(require("../entity/Tranjection.entity"));
 const axios_1 = __importDefault(require("axios"));
-const sendSms_1 = __importDefault(require("../utility/sendSms"));
 const generateLicense_1 = require("../service/generateLicense");
 const email_1 = __importDefault(require("../utility/email"));
 const cost_controller_1 = __importDefault(require("./cost.controller"));
+const sendSms_1 = __importDefault(require("../utility/sendSms"));
 class LicenseController {
     constructor() {
         this.getAllLicense = express_async_handler_1.default((req, res) => __awaiter(this, void 0, void 0, function* () {
@@ -296,6 +296,59 @@ class LicenseController {
                 });
             });
         }));
+        this.requestLicenseInsecure = express_async_handler_1.default((req, res) => __awaiter(this, void 0, void 0, function* () {
+            const connectionManager = typeorm_1.getConnection().manager;
+            const { phoneno, email, price, type, refrence, shop_code } = req.body;
+            const partner = yield connectionManager.findOne(Partner_entity_1.default, {
+                where: {
+                    shopId: shop_code,
+                },
+            });
+            if (!email && !phoneno) {
+                res.statusCode = 400;
+                throw "Email or phoneno required";
+            }
+            if (email &&
+                !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(email)) {
+                res.statusCode = 400;
+                throw "Please enter correct email address";
+            }
+            if (phoneno && phoneno.toString().length != 10) {
+                res.statusCode = 400;
+                throw "Please enter correct phone no";
+            }
+            const platform = yield connectionManager.findOne(Cost_entity_1.default, {
+                where: {
+                    platform: type.toLowerCase(),
+                },
+            });
+            // check shop_id exists or not
+            if (!partner) {
+                res.statusCode = 400;
+                throw "Partner not exists";
+            }
+            // check platform exists
+            if (!platform) {
+                res.statusCode = 400;
+                throw "Platform not exists";
+            }
+            const cost = platform.price;
+            if (price < cost) {
+                res.statusCode = 400;
+                throw "price is insufficent";
+            }
+            return this.sendLiscense(email, partner, platform, phoneno, (license) => {
+                res.status(200).json({
+                    result: 1,
+                    licenseCode: license,
+                    validation: {
+                        date: Date.now(),
+                        timezone_type: 3,
+                        timezone: "UTC",
+                    },
+                });
+            });
+        }));
         this.sendLiscense = (email, partner, platform, phoneno, cb) => __awaiter(this, void 0, void 0, function* () {
             let sn = yield generateLicense_1.findUniqueSn();
             let license = yield generateLicense_1.findUniqueLicense();
@@ -313,20 +366,24 @@ class LicenseController {
             yield typeorm_1.getConnection().manager.save(newLicense);
             if (phoneno) {
                 while (true) {
-                    sendSms_1.default.emit("send", phoneno, `Namaste,\nWelcome to MSecurity & Antivirus!\nYour License is: ${license}`);
-                    sendSms_1.default.on("success", (data) => {
+                    try {
+                        yield sendSms_1.default(phoneno, `Namaste,\nWelcome to MSecurity & Antivirus!\nPlease use this for ${platform.title}\nYour License is: ${license}`);
                         return cb(license);
-                    });
+                    }
+                    catch (err) { }
                 }
             }
             else if (email) {
-                const message = `Namaste,\nWelcome to MSecurity & Antivirus!\nYour License is: ${license}`;
+                const message = `Namaste,\nWelcome to MSecurity & Antivirus!\nPlease use this for ${platform.title}\nYour License is: ${license}`;
                 const subject = "Msecurity activation";
                 while (true) {
-                    email_1.default.emit("mail", subject, message, email);
-                    email_1.default.on("success", () => {
+                    try {
+                        yield email_1.default(email, subject, message);
                         return cb(license);
-                    });
+                    }
+                    catch (err) {
+                        console.log(err);
+                    }
                 }
             }
         });
@@ -435,6 +492,10 @@ class LicenseController {
                     shopId: shop_code,
                 },
             });
+            if (!partner) {
+                res.statusCode = 400;
+                throw "Partner not exists";
+            }
             if (partner.id != req.partner.id) {
                 res.statusCode = 403;
                 throw "Unauthorized";

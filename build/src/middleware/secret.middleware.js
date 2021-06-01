@@ -23,6 +23,7 @@ const partnerKeyMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 
     const query = req.query.secret;
     if (query.includes("tk_")) {
         req.url = "/test" + req.url;
+        console.log(req.url);
         // var pathname = url.parse(req.url).pathname;
         // // console.log(pathname);
         // pathname = "/test" + pathname;

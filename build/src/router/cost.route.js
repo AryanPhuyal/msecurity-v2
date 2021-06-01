@@ -14,3 +14,4 @@ router.get("/:id", costController.listOne);
 router.post("/create", adminUser_middleware_1.default, cost_validation_1.createValidation, costController.create);
 router.put("/update-platform/:id", adminUser_middleware_1.default, costController.updatePrice);
 router.delete("/delete-platform/:id", adminUser_middleware_1.default, costController.delete);
+exports.default = router;
