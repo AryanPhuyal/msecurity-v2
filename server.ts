@@ -50,6 +50,10 @@ databaseconfig.on("success", (connection: any) => {
     app.use(cors());
     app.use(authMiddleware);
     app.use(secretMiddleware);
+    app.use("/api/error", (req: Request, res: Response) => {
+      res.statusCode = 400;
+      throw "Unable to handel request";
+    });
     app.use("/api/v2/user", userRoute);
     app.use("/api/v2/cost", costRoute);
     app.use("/api/cost", costRouteInsecure);
@@ -61,7 +65,9 @@ databaseconfig.on("success", (connection: any) => {
     app.use("/api/v2/virus", viriRoute);
     app.use("/test/api/v2", testRoute);
     app.use("/api/v2/key", keyRoute);
-    app.use("/api", errorHandler);
+    app.use("/api/", errorHandler);
+    app.use("/test/", errorHandler);
+
     app.use("/api", (req: Request, res: Response) => {
       res.json({
         success: false,

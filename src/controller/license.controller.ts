@@ -218,7 +218,7 @@ export default class LicenseController {
   requestLicense = asyncHandler(async (req: Request, res: Response) => {
     const connectionManager = getConnection().manager;
 
-    const { phoneno, email, price, type, refrence, shop_code } = req.body;
+    const { phoneno, email, price, type, reference, shop_code } = req.body;
     if (req.partner?.shopId !== shop_code) {
       res.statusCode = 400;
       throw "Shop Code is not valid";
@@ -270,6 +270,7 @@ export default class LicenseController {
     }
 
     return this.sendLiscense(
+      reference,
       email,
       partner,
       platform,
@@ -291,7 +292,7 @@ export default class LicenseController {
   requestLicenseInsecure = asyncHandler(async (req: Request, res: Response) => {
     const connectionManager = getConnection().manager;
 
-    const { phoneno, email, price, type, refrence, shop_code } = req.body;
+    const { phoneno, email, price, type, reference, shop_code } = req.body;
 
     const partner = await connectionManager.findOne(Partner, {
       where: {
@@ -334,13 +335,13 @@ export default class LicenseController {
       throw "Platform not exists";
     }
     const cost = platform.price;
-    if (price < cost) {
+    if (price !== cost) {
       res.statusCode = 400;
       throw "price is insufficent";
     }
 
     return this.sendLiscense(
-	    refrence,
+      reference,
       email,
       partner,
       platform,
@@ -360,7 +361,7 @@ export default class LicenseController {
   });
 
   sendLiscense = async (
-	  refrence:string|null;
+    reference: string | null,
     email: string | null,
     partner: Partner,
     platform: Cost,
@@ -377,8 +378,9 @@ export default class LicenseController {
     newLicense.cost = platform;
     const newTranjection = new Tranjection();
     newTranjection.cost = platform.price;
-if(refrence)
-	newTranjection.id =refrence
+    if (reference) {
+      newTranjection.id = reference;
+    }
     // newTranjection.licenses = new;
     newTranjection.partner = partner;
     const tt = await getConnection().manager.save(newTranjection); // var tt = await getConnection().manager.save(Tranjection);
@@ -410,7 +412,7 @@ if(refrence)
   };
 
   khaltiPayment = asyncHandler(async (req: Request, res: Response) => {
-    const { phoneno, price, type, refrence, shop_code, token } = req.body;
+    const { phoneno, price, type, reference, shop_code, token } = req.body;
     const response = await axios.post(
       "https://khalti.com/api/v2/payment/verify/",
       {
@@ -452,17 +454,24 @@ if(refrence)
         res.statusCode = 400;
         throw "price is insufficent";
       }
-      this.sendLiscense(null, partner, platform, phoneno, (license: String) => {
-        res.status(200).json({
-          result: 1,
-          licenseCode: license,
-          validation: {
-            date: Date.now(),
-            timezone_type: 3,
-            timezone: "UTC",
-          },
-        });
-      });
+      this.sendLiscense(
+        null,
+        null,
+        partner,
+        platform,
+        phoneno,
+        (license: String) => {
+          res.status(200).json({
+            result: 1,
+            licenseCode: license,
+            validation: {
+              date: Date.now(),
+              timezone_type: 3,
+              timezone: "UTC",
+            },
+          });
+        }
+      );
     }
   });
 
@@ -519,7 +528,7 @@ if(refrence)
 
   requestLiscenseTest = asyncHandler(async (req: Request, res: Response) => {
     const connectionManager = getConnection().manager;
-    const { phoneno, email, price, type, refrence, shop_code } = req.body;
+    const { phoneno, email, price, type, reference, shop_code } = req.body;
     const partner = await connectionManager.findOne(Partner, {
       where: {
         shopId: shop_code,
