@@ -275,7 +275,11 @@ export default class LicenseController {
       partner,
       platform,
       phoneno,
-      (license: String) => {
+      (err: any, license: String) => {
+        if (err) {
+          res.statusCode = 400;
+          throw err;
+        }
         res.status(200).json({
           result: 1,
           licenseCode: license,
@@ -346,7 +350,11 @@ export default class LicenseController {
       partner,
       platform,
       phoneno,
-      (license: String) => {
+      (err: any, license: String) => {
+        if (err) {
+          res.statusCode = 400;
+          throw err;
+        }
         res.status(200).json({
           result: 1,
           licenseCode: license,
@@ -379,6 +387,13 @@ export default class LicenseController {
     const newTranjection = new Tranjection();
     newTranjection.cost = platform.price;
     if (reference) {
+      const testTranjection = await getConnection().manager.findOne(
+        Tranjection,
+        { where: { id: reference } }
+      );
+      if (testTranjection) {
+        cb("tranjection id already exists");
+      }
       newTranjection.id = reference;
     }
     // newTranjection.licenses = new;
@@ -393,7 +408,7 @@ export default class LicenseController {
             phoneno,
             `Namaste,\nWelcome to MSecurity & Antivirus!\nPlease use this for ${platform.title}\nYour License is: ${license}`
           );
-          return cb(license);
+          return cb(null, license);
         } catch (err) {}
       }
     } else if (email) {
@@ -403,7 +418,7 @@ export default class LicenseController {
       while (true) {
         try {
           await mailer(email, subject, message);
-          return cb(license);
+          return cb(null, license);
         } catch (err) {
           console.log(err);
         }
@@ -460,7 +475,11 @@ export default class LicenseController {
         partner,
         platform,
         phoneno,
-        (license: String) => {
+        (err: any, license: String) => {
+          if (err) {
+            res.statusCode = 400;
+            throw err;
+          }
           res.status(200).json({
             result: 1,
             licenseCode: license,
