@@ -22,7 +22,7 @@ dotenv.config();
 //
 import appconfig from "./src/configs/configApp";
 import databaseconfig from "./src/configs/database";
-import { Errback, NextFunction, Response, Request } from "express";
+import { Errback, NextFunction, Response, Request, json } from "express";
 
 databaseconfig.emit("connect");
 
@@ -30,6 +30,8 @@ databaseconfig.emit("connect");
 databaseconfig.on("success", (connection: any) => {
   appconfig.emit("connect");
   appconfig.on("success", (app: any) => {
+    app.use(cors());
+
     if (
       fs.existsSync(
         ENVIRONMENT === "DEVELOPMENT"
@@ -47,7 +49,7 @@ databaseconfig.on("success", (connection: any) => {
         )
       );
     }
-    app.use(cors());
+
     app.use(authMiddleware);
     app.use(secretMiddleware);
     app.use("/api/error", (req: Request, res: Response) => {
@@ -102,6 +104,13 @@ function errorHandler(
 ) {
   logger.emit("error", __dirname, "index.js", err.toString());
   if (process.env.ENVIRONMENT === "DEVLOPMENT") {
+  }
+  if (err instanceof SyntaxError) {
+    res.statusCode = 400;
+    return res.json({
+      success: false,
+      error: "Not a valid json",
+    });
   }
   if (res.statusCode) {
     res.json({

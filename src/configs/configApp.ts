@@ -1,5 +1,5 @@
 import EventEmitter from "events";
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import { ENVIRONMENT, PORT } from "../utility/environment";
 import logger from "./logger";
 const serverConfig = new EventEmitter();
@@ -23,7 +23,12 @@ serverConfig.on("connect", () => {
       )
     );
   }
-  app.use(express.json());
+  // app.use((req:Request,res:Response,next:NextFunction)=>{
+  //   console.log(req);
+  // })
+
+  app.use(express.json({}));
+  // console.log("asas");
   app.listen(PORT, () => {
     logger.emit(
       "log",

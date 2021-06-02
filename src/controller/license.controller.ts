@@ -596,7 +596,7 @@ export default class LicenseController {
       throw "Platform not exists";
     }
     const cost = platform.price;
-    if (price < cost) {
+    if (price === cost) {
       res.statusCode = 400;
       throw "price is insufficent";
     }
