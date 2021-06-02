@@ -266,7 +266,7 @@ export default class LicenseController {
     const cost = platform.price;
     if (price !== cost) {
       res.statusCode = 400;
-      throw "price is insufficent";
+      throw "price is incorrect";
     }
 
     return this.sendLiscense(
@@ -341,7 +341,7 @@ export default class LicenseController {
     const cost = platform.price;
     if (price !== cost) {
       res.statusCode = 400;
-      throw "price is insufficent";
+      throw "price is incorrect";
     }
 
     return this.sendLiscense(
@@ -598,7 +598,7 @@ export default class LicenseController {
     const cost = platform.price;
     if (price !== cost) {
       res.statusCode = 400;
-      throw "price is insufficent";
+      throw "price is incorrect";
     }
     let license: string = await findUniqueLicense();
 
