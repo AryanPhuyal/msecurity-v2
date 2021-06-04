@@ -103,6 +103,7 @@ function errorHandler(
   next: NextFunction
 ) {
   logger.emit("error", __dirname, "index.js", err.toString());
+  console.log(err);
   if (process.env.ENVIRONMENT === "DEVLOPMENT") {
   }
   if (err instanceof SyntaxError) {

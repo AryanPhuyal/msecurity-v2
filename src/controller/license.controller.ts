@@ -442,8 +442,13 @@ export default class LicenseController {
     );
 
     if (response.status == 200) {
+      if (!phoneno) {
+        res.statusCode = 400;
+        throw "Phone number required";
+      }
       const connectionManager = getConnection().manager;
-
+      if (!type) {
+      }
       const platform = await connectionManager.findOne(Cost, {
         where: {
           platform: type.toLowerCase(),
@@ -470,7 +475,7 @@ export default class LicenseController {
         throw "price is insufficent";
       }
       this.sendLiscense(
-        null,
+        reference,
         null,
         partner,
         platform,
