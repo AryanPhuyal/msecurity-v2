@@ -88,12 +88,10 @@ databaseconfig.on("success", (connection: any) => {
 
 databaseconfig.on("error", (err: Error) => {
   // when database cal gets fail
-  console.log(err);
 });
 
 appconfig.on("err", (err: Error) => {
   // when server creation gets failcons\
-  console.log(err);
 });
 
 function errorHandler(
@@ -103,7 +101,6 @@ function errorHandler(
   next: NextFunction
 ) {
   logger.emit("error", __dirname, "index.js", err.toString());
-  console.log(err);
   if (process.env.ENVIRONMENT === "DEVLOPMENT") {
   }
   if (err instanceof SyntaxError) {

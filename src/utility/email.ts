@@ -24,7 +24,6 @@ const mailer = async (emailTo: string, subject: string, body: string) => {
     text: body,
   };
 
-  console.log(subject + " " + body);
   return await transporter.sendMail(mailOptions);
 };
 

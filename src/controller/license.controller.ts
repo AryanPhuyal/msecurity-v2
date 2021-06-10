@@ -419,9 +419,7 @@ export default class LicenseController {
         try {
           await mailer(email, subject, message);
           return cb(null, license);
-        } catch (err) {
-          console.log(err);
-        }
+        } catch (err) {}
       }
     }
   };

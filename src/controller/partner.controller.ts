@@ -26,6 +26,7 @@ export default class PartnerController {
       shopId = uuidv4();
     }
     const partnerCount = await getConnection().manager.count(Partner);
+
     const newPartner = new Partner();
     if (partnerCount == 0) {
       newPartner.role = "admin";
@@ -36,10 +37,11 @@ export default class PartnerController {
         .where("partner.email = :email OR partner.phone= :phone ", {
           email,
           phone,
-        }).execute();
-      if (partnerExists) {
+        })
+        .execute();
+      if (partnerExists.length !== 0) {
         res.statusCode = 409;
-        throw "Partner with this email already exists";
+        throw "Partner with this email/phone already exists";
       }
     }
     newPartner.name = name;

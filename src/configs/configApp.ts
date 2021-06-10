@@ -23,12 +23,8 @@ serverConfig.on("connect", () => {
       )
     );
   }
-  // app.use((req:Request,res:Response,next:NextFunction)=>{
-  //   console.log(req);
-  // })
 
   app.use(express.json({}));
-  // console.log("asas");
   app.listen(PORT, () => {
     logger.emit(
       "log",
