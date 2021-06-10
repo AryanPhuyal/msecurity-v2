@@ -241,7 +241,7 @@ class LicenseController {
         this.requestLicense = express_async_handler_1.default((req, res) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             const connectionManager = typeorm_1.getConnection().manager;
-            const { phoneno, email, price, type, refrence, shop_code } = req.body;
+            const { phoneno, email, price, type, reference, shop_code } = req.body;
             if (((_a = req.partner) === null || _a === void 0 ? void 0 : _a.shopId) !== shop_code) {
                 res.statusCode = 400;
                 throw "Shop Code is not valid";
@@ -280,11 +280,15 @@ class LicenseController {
                 throw "Platform not exists";
             }
             const cost = platform.price;
-            if (price < cost) {
+            if (price !== cost) {
                 res.statusCode = 400;
-                throw "price is insufficent";
+                throw "price is incorrect";
             }
-            return this.sendLiscense(email, partner, platform, phoneno, (license) => {
+            return this.sendLiscense(reference, email, partner, platform, phoneno, (err, license) => {
+                if (err) {
+                    res.statusCode = 400;
+                    throw err;
+                }
                 res.status(200).json({
                     result: 1,
                     licenseCode: license,
@@ -298,7 +302,7 @@ class LicenseController {
         }));
         this.requestLicenseInsecure = express_async_handler_1.default((req, res) => __awaiter(this, void 0, void 0, function* () {
             const connectionManager = typeorm_1.getConnection().manager;
-            const { phoneno, email, price, type, refrence, shop_code } = req.body;
+            const { phoneno, email, price, type, reference, shop_code } = req.body;
             const partner = yield connectionManager.findOne(Partner_entity_1.default, {
                 where: {
                     shopId: shop_code,
@@ -333,11 +337,15 @@ class LicenseController {
                 throw "Platform not exists";
             }
             const cost = platform.price;
-            if (price < cost) {
+            if (price !== cost) {
                 res.statusCode = 400;
-                throw "price is insufficent";
+                throw "price is incorrect";
             }
-            return this.sendLiscense(email, partner, platform, phoneno, (license) => {
+            return this.sendLiscense(reference, email, partner, platform, phoneno, (err, license) => {
+                if (err) {
+                    res.statusCode = 400;
+                    throw err;
+                }
                 res.status(200).json({
                     result: 1,
                     licenseCode: license,
@@ -349,7 +357,7 @@ class LicenseController {
                 });
             });
         }));
-        this.sendLiscense = (email, partner, platform, phoneno, cb) => __awaiter(this, void 0, void 0, function* () {
+        this.sendLiscense = (reference, email, partner, platform, phoneno, cb) => __awaiter(this, void 0, void 0, function* () {
             let sn = yield generateLicense_1.findUniqueSn();
             let license = yield generateLicense_1.findUniqueLicense();
             const newLicense = new License_entity_1.License();
@@ -359,6 +367,13 @@ class LicenseController {
             newLicense.cost = platform;
             const newTranjection = new Tranjection_entity_1.default();
             newTranjection.cost = platform.price;
+            if (reference) {
+                const testTranjection = yield typeorm_1.getConnection().manager.findOne(Tranjection_entity_1.default, { where: { id: reference } });
+                if (testTranjection) {
+                    cb("tranjection id already exists");
+                }
+                newTranjection.id = reference;
+            }
             // newTranjection.licenses = new;
             newTranjection.partner = partner;
             const tt = yield typeorm_1.getConnection().manager.save(newTranjection); // var tt = await getConnection().manager.save(Tranjection);
@@ -368,7 +383,7 @@ class LicenseController {
                 while (true) {
                     try {
                         yield sendSms_1.default(phoneno, `Namaste,\nWelcome to MSecurity & Antivirus!\nPlease use this for ${platform.title}\nYour License is: ${license}`);
-                        return cb(license);
+                        return cb(null, license);
                     }
                     catch (err) { }
                 }
@@ -379,7 +394,7 @@ class LicenseController {
                 while (true) {
                     try {
                         yield email_1.default(email, subject, message);
-                        return cb(license);
+                        return cb(null, license);
                     }
                     catch (err) {
                         console.log(err);
@@ -388,7 +403,7 @@ class LicenseController {
             }
         });
         this.khaltiPayment = express_async_handler_1.default((req, res) => __awaiter(this, void 0, void 0, function* () {
-            const { phoneno, price, type, refrence, shop_code, token } = req.body;
+            const { phoneno, price, type, reference, shop_code, token } = req.body;
             const response = yield axios_1.default.post("https://khalti.com/api/v2/payment/verify/", {
                 token: token,
                 amount: 50000,
@@ -420,11 +435,15 @@ class LicenseController {
                     throw "Platform not exists";
                 }
                 const cost = platform.price;
-                if (price < cost) {
+                if (price !== cost) {
                     res.statusCode = 400;
                     throw "price is insufficent";
                 }
-                this.sendLiscense(null, partner, platform, phoneno, (license) => {
+                this.sendLiscense(null, null, partner, platform, phoneno, (err, license) => {
+                    if (err) {
+                        res.statusCode = 400;
+                        throw err;
+                    }
                     res.status(200).json({
                         result: 1,
                         licenseCode: license,
@@ -486,7 +505,7 @@ class LicenseController {
         }));
         this.requestLiscenseTest = express_async_handler_1.default((req, res) => __awaiter(this, void 0, void 0, function* () {
             const connectionManager = typeorm_1.getConnection().manager;
-            const { phoneno, email, price, type, refrence, shop_code } = req.body;
+            const { phoneno, email, price, type, reference, shop_code } = req.body;
             const partner = yield connectionManager.findOne(Partner_entity_1.default, {
                 where: {
                     shopId: shop_code,
@@ -529,9 +548,9 @@ class LicenseController {
                 throw "Platform not exists";
             }
             const cost = platform.price;
-            if (price < cost) {
+            if (price !== cost) {
                 res.statusCode = 400;
-                throw "price is insufficent";
+                throw "price is incorrect";
             }
             let license = yield generateLicense_1.findUniqueLicense();
             res.status(200).json({

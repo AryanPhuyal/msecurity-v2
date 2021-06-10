@@ -30,6 +30,7 @@ database_1.default.emit("connect");
 database_1.default.on("success", (connection) => {
     configApp_1.default.emit("connect");
     configApp_1.default.on("success", (app) => {
+        app.use(cors_1.default());
         if (fs_1.default.existsSync(environment_1.ENVIRONMENT === "DEVELOPMENT"
             ? path_1.default.join(__dirname, "public", "build")
             : path_1.default.join(__dirname, "../", "public", "build"))) {
@@ -37,9 +38,12 @@ database_1.default.on("success", (connection) => {
                 ? path_1.default.join(__dirname, "public", "build", "index.html")
                 : path_1.default.join(__dirname, "../", "public", "build", "index.html"))));
         }
-        app.use(cors_1.default());
         app.use(auth_middlleware_1.default);
         app.use(secret_middleware_1.default);
+        app.use("/api/error", (req, res) => {
+            res.statusCode = 400;
+            throw "Unable to handel request";
+        });
         app.use("/api/v2/user", user_route_1.default);
         app.use("/api/v2/cost", cost_route_1.default);
         app.use("/api/cost", costRouteInsecure_route_1.default);
@@ -49,7 +53,8 @@ database_1.default.on("success", (connection) => {
         app.use("/api/v2/virus", viri_route_1.default);
         app.use("/test/api/v2", test_route_1.default);
         app.use("/api/v2/key", liscenseKey_route_1.default);
-        app.use("/api", errorHandler);
+        app.use("/api/", errorHandler);
+        app.use("/test/", errorHandler);
         app.use("/api", (req, res) => {
             res.json({
                 success: false,
@@ -75,6 +80,13 @@ configApp_1.default.on("err", (err) => {
 function errorHandler(err, req, res, next) {
     logger_1.default.emit("error", __dirname, "index.js", err.toString());
     if (process.env.ENVIRONMENT === "DEVLOPMENT") {
+    }
+    if (err instanceof SyntaxError) {
+        res.statusCode = 400;
+        return res.json({
+            success: false,
+            error: "Not a valid json",
+        });
     }
     if (res.statusCode) {
         res.json({

@@ -19,7 +19,11 @@ serverConfig.on("connect", () => {
             ? path_1.default.join(__dirname, "public", "build")
             : path_1.default.join(__dirname, "../", "public", "build")));
     }
-    app.use(express_1.default.json());
+    // app.use((req:Request,res:Response,next:NextFunction)=>{
+    //   console.log(req);
+    // })
+    app.use(express_1.default.json({}));
+    // console.log("asas");
     app.listen(environment_1.PORT, () => {
         logger_1.default.emit("log", __dirname, "index.js", `Server is running at Port ${environment_1.PORT}`);
         serverConfig.emit("success", app);
